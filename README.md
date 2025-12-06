@@ -1,4 +1,3 @@
-```markdown
 # 🔍 Cross-Platform Packet Sniffer
 
 A real-time network traffic analyzer with an interactive web dashboard. Capture, analyze, and visualize network packets with built-in security threat detection.

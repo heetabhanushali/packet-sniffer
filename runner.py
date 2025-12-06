@@ -223,9 +223,10 @@ def main():
     open_browser(url)
     
     # Run Flask (silent)
+    port = int(os.environ.get('PORT', 8000))
     app.run(
         host='0.0.0.0',
-        port=8000,
+        port=port,
         debug=False,
         threaded=True,
         use_reloader=False
