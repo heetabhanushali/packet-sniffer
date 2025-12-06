@@ -1,0 +1,312 @@
+{% extends "base.html" %}
+
+{% block title %}Packet Sniffer - Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- Legal Notice Popup -->
+<div id="legal-overlay" class="legal-overlay">
+    <div class="legal-popup">
+        <div class="legal-header">
+            <h2>Legal Notice</h2>
+        </div>
+        <div class="legal-body">
+            <h3>NETWORK TRAFFIC CAPTURE NOTICE</h3>
+            <p>This tool captures and analyzes network traffic.</p>
+            
+            <div class="legal-section">
+                <h4>LEGAL USE ONLY:</h4>
+                <ul>
+                    <li>Your own computer or network</li>
+                    <li>Networks you own or have written authorization to monitor</li>
+                    <li>Educational purposes on authorized systems</li>
+                    <li>Security auditing with proper authorization</li>
+                </ul>
+            </div>
+            
+            <div class="legal-section">
+                <h4>ILLEGAL USE INCLUDES:</h4>
+                <ul>
+                    <li>Monitoring networks without permission</li>
+                    <li>Intercepting others' communications</li>
+                    <li>Capturing traffic on public/corporate WiFi without authorization</li>
+                    <li>Any form of unauthorized surveillance</li>
+                </ul>
+            </div>
+            
+            <div class="legal-section">
+                <h4>APPLICABLE LAWS:</h4>
+                <ul>
+                    <li><strong>USA:</strong> Computer Fraud and Abuse Act, Wiretap Act, ECPA</li>
+                    <li><strong>UK:</strong> Computer Misuse Act 1990, RIPA, Data Protection Act</li>
+                    <li><strong>India:</strong> IT Act 2000, Section 43/66, Telegraph Act 1885</li>
+                </ul>
+            </div>
+            
+            <p class="legal-warning">
+                Unauthorized network capture may result in criminal prosecution and civil liability.
+            </p>
+            
+            <p class="legal-agreement">
+                By clicking "I Agree", you confirm you have authorization to capture 
+                traffic on this network and accept full legal responsibility for your actions.
+            </p>
+        </div>
+        <div class="legal-footer">
+            <button id="btn-legal-decline" class="btn btn-secondary" onclick="declineLegal()">
+                Decline
+            </button>
+            <button id="btn-legal-agree" class="btn btn-success" onclick="acceptLegal()">
+                I Agree
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Main Dashboard Container (hidden until legal accepted) -->
+<div id="dashboard-main" class="dashboard-container" style="display: none;">
+    
+    <!-- Mode Banner -->
+    <div class="container">
+        {% if mode == 'live' %}
+        <div class="mode-banner mode-banner-live">
+            <div class="banner-icon">[!]</div>
+            <div class="banner-content">
+                <strong>LIVE CAPTURE MODE</strong>
+                <span>Displaying real network traffic from your system. Ensure you have authorization to monitor this network. Unauthorized packet capture may violate local laws.</span>
+            </div>
+        </div>
+        {% else %}
+        <div class="mode-banner mode-banner-demo">
+            <div class="banner-icon">[i]</div>
+            <div class="banner-content">
+                <strong>DEMONSTRATION MODE</strong>
+                <span>This dashboard displays simulated network traffic for demonstration purposes. Real packet capture requires administrative privileges and is disabled in this hosted environment for security reasons. To capture real traffic, run the code from <code> .... </code> locally on your device</span>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Control Bar -->
+    <div class="container">
+        <div class="control-bar">
+            <div class="control-left">
+                <span class="control-label">Captured:</span>
+                <span class="control-value" id="stat-packets">0</span>
+                <span class="control-separator">|</span>
+                <span class="control-label">Rate:</span>
+                <span class="control-value" id="stat-rate">0</span>
+                <span class="control-unit">pkt/s</span>
+                <span class="control-separator">|</span>
+                <span class="control-label">Data:</span>
+                <span class="control-value" id="stat-bytes">0 KB</span>
+                <span class="control-separator">|</span>
+                <span class="control-label">Duration:</span>
+                <span class="control-value" id="stat-duration">0s</span>
+            </div>
+    
+            <div class="control-center">
+                <div class="mode-indicator" id="mode-indicator">
+                    <span class="mode-dot mode-simulated"></span>
+                    <span class="mode-text">Initializing...</span>
+                </div>
+            </div>
+    
+            <div class="control-right">
+                <button id="btn-start" class="btn btn-success" onclick="handleStart()">
+                    Start
+                </button>
+                <button id="btn-stop" class="btn btn-danger" onclick="handleStop()" disabled>
+                    Stop
+                </button>
+                <button id="btn-trigger-alert" class="btn btn-warning" onclick="triggerAttack()">
+                    Simulate Attack
+                </button>
+                <button id="btn-clear" class="btn btn-secondary" onclick="clearData()">
+                    Clear
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Packet Table -->
+    <div class="container">
+        <div class="packet-table-wrapper">
+            <div class="packet-table-container">
+                <table class="packet-table" id="packet-table">
+                    <thead>
+                        <tr>
+                            <th class="col-time">
+                                <span class="th-label">Time</span>
+                            </th>
+                            <th class="col-src-addr">
+                                <div class="th-filterable">
+                                    <span class="th-label">Source Address</span>
+                                    <select id="filter-src-ip" class="th-filter" onchange="applyFilters()">
+                                        <option value="">All</option>
+                                    </select>
+                                </div>
+                            </th>
+                            <th class="col-src-port">
+                                <span class="th-label">Src Port</span>
+                            </th>
+                            <th class="col-dst-addr">
+                                <div class="th-filterable">
+                                    <span class="th-label">Dest Address</span>
+                                    <select id="filter-dst-ip" class="th-filter" onchange="applyFilters()">
+                                        <option value="">All</option>
+                                    </select>
+                                </div>
+                            </th>
+                            <th class="col-dst-port">
+                                <span class="th-label">Dst Port</span>
+                            </th>
+                            <th class="col-protocol">
+                                <div class="th-filterable">
+                                    <span class="th-label">Protocol</span>
+                                    <select id="filter-protocol" class="th-filter" onchange="applyFilters()">
+                                        <option value="">All</option>
+                                        <option value="TCP">TCP</option>
+                                        <option value="UDP">UDP</option>
+                                        <option value="HTTP">HTTP</option>
+                                        <option value="HTTPS">HTTPS</option>
+                                        <option value="TLS">TLS</option>
+                                        <option value="DNS">DNS</option>
+                                        <option value="ICMP">ICMP</option>
+                                        <option value="ICMPv6">ICMPv6</option>
+                                        <option value="SSH">SSH</option>
+                                        <option value="FTP">FTP</option>
+                                        <option value="ARP">ARP</option>
+                                        <option value="IPv6">IPv6</option>
+                                    </select>
+                                </div>
+                            </th>
+                            <th class="col-service">
+                                <div class="th-filterable">
+                                    <span class="th-label">Service</span>
+                                    <select id="filter-service" class="th-filter" onchange="applyFilters()">
+                                        <option value="">All</option>
+                                        <option value="20">FTP-Data (20)</option>
+                                        <option value="21">FTP (21)</option>
+                                        <option value="22">SSH (22)</option>
+                                        <option value="25">SMTP (25)</option>
+                                        <option value="53">DNS (53)</option>
+                                        <option value="80">HTTP (80)</option>
+                                        <option value="443">HTTPS (443)</option>
+                                        <option value="3306">MySQL (3306)</option>
+                                        <option value="5432">PostgreSQL (5432)</option>
+                                        <option value="8080">HTTP-Alt (8080)</option>
+                                        <option value="8443">HTTPS-Alt (8443)</option>
+                                    </select>
+                                </div>
+                            </th>
+                            <th class="col-bytes">
+                                <span class="th-label">Bytes</span>
+                            </th>
+                            <th class="col-packets">
+                                <span class="th-label">Packets</span>
+                            </th>
+                            <th class="col-info">
+                                <div class="th-with-count">
+                                    <span class="th-label">Info</span>
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="packet-tbody">
+                        <!-- Packets will be inserted here -->
+                    </tbody>
+                </table>
+                
+                <div id="packet-placeholder" class="packet-placeholder">
+                    Click "Start" to begin capturing packets
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Security Monitor -->
+    <div class="container">
+        <div class="security-panel">
+            <div class="security-header">
+                <h3>Security Monitor</h3>
+                <div class="security-status" id="security-status">
+                    <span class="status-dot status-normal"></span>
+                    <span class="status-text">Normal</span>
+                </div>
+            </div>
+            <div class="security-body">
+                <div id="alerts-container" class="alerts-container">
+                    <div class="no-alerts">No security alerts detected</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bottom Section: Charts & Client Stats -->
+    <div class="container">
+        <div class="charts-row">
+            <!-- Protocol Distribution -->
+            <div class="chart-panel">
+                <div class="chart-header">
+                    <h3>Protocol Distribution</h3>
+                </div>
+                <div class="chart-body">
+                    <canvas id="protocol-chart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Traffic Over Time -->
+            <div class="chart-panel">
+                <div class="chart-header">
+                    <h3>Traffic Over Time</h3>
+                </div>
+                <div class="chart-body">
+                    <canvas id="traffic-chart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Your Connection -->
+            <div class="chart-panel panel-highlight">
+                <div class="chart-header">
+                    <h3>Your Connection</h3>
+                    <span class="header-note">Real browser metrics</span>
+                </div>
+                <div class="chart-body">
+                    <div class="client-stats">
+                        <div class="client-stat-row">
+                            <span class="client-label">Latency</span>
+                            <span class="client-value" id="client-latency">--</span>
+                        </div>
+                        <div class="client-stat-row">
+                            <span class="client-label">DNS Lookup</span>
+                            <span class="client-value" id="client-dns">--</span>
+                        </div>
+                        <div class="client-stat-row">
+                            <span class="client-label">Connection</span>
+                            <span class="client-value" id="client-connection">--</span>
+                        </div>
+                        <div class="client-stat-row">
+                            <span class="client-label">Page Load</span>
+                            <span class="client-value" id="client-load">--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</div>
+
+<!-- Pass mode to JavaScript -->
+<script>
+    const APP_MODE = "{{ mode }}";
+    const IS_LIVE_MODE = APP_MODE === "live";
+</script>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/client_metrics.js') }}"></script>
+<script src="{{ url_for('static', filename='js/simulation.js') }}"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}
