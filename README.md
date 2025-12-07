@@ -1,4 +1,4 @@
-# 🔍 Cross-Platform Packet Sniffer
+# Cross-Platform Packet Sniffer
 
 A real-time network traffic analyzer with an interactive web dashboard. Capture, analyze, and visualize network packets with built-in security threat detection.
 
@@ -9,23 +9,23 @@ A real-time network traffic analyzer with an interactive web dashboard. Capture,
 
 ---
 
-## 🎬 Demo
+## Demo
 
-**Live Demo (Simulated Traffic):** [https://your-app-name.herokuapp.com](https://your-app-name.herokuapp.com)
+**Live Demo (Simulated Traffic):** [https://packet-sniffer-bpub.onrender.com/dashboard](https://packet-sniffer-bpub.onrender.com/dashboard)
 
-**Video Demo (Real Network Capture):** [Watch Video](https://youtube.com/your-video-link)
+**Video Demo (Real Network Capture):** [Watch Video](https://drive.google.com/file/d/1O33FlX99Hey1hdfA9x1azEwLy3Ts-oXn/view?usp=drive_link)
 
 ---
 
-## ✨ Features
+## Features
 
-### 🎯 Core Capabilities
+### Core Capabilities
 - **Real-Time Packet Capture** - Capture live network traffic with Scapy
 - **Protocol Analysis** - Decode TCP, UDP, HTTP, HTTPS, DNS, ICMP, SSH, FTP, ARP, and more
 - **Interactive Dashboard** - Beautiful web interface with live updates
 - **Security Monitoring** - Detect port scans, brute force attempts, SYN floods, and suspicious activity
 
-### 📊 Dashboard Features
+### Dashboard Features
 - Live packet stream with color-coded protocols
 - Protocol distribution charts
 - Traffic rate visualization
@@ -33,7 +33,7 @@ A real-time network traffic analyzer with an interactive web dashboard. Capture,
 - Filterable packet table
 - Client connection metrics
 
-### 🛡️ Security Detection
+### Security Detection
 | Threat Type | Description |
 |-------------|-------------|
 | Port Scan | Detects sequential port scanning from single source |
@@ -41,13 +41,13 @@ A real-time network traffic analyzer with an interactive web dashboard. Capture,
 | SYN Flood | Alerts on high volume of SYN packets |
 | Suspicious Ports | Flags connections to commonly exploited ports |
 
-### 🌐 Dual Mode Operation
+### Dual Mode Operation
 - **Live Mode** - Real packet capture (requires admin/root privileges)
 - **Demo Mode** - Simulated traffic for demonstration and testing
 
 ---
 
-## 🚀 How to Run
+## How to Run
 
 ### Prerequisites
 
@@ -89,7 +89,7 @@ The dashboard will automatically open at `http://127.0.0.1:8000`
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 packet-sniffer/
@@ -126,7 +126,7 @@ packet-sniffer/
 
 ---
 
-## 🛠️ Technical Details
+## Technical Details
 
 ### Supported Protocols
 
@@ -159,9 +159,8 @@ packet-sniffer/
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - [Scapy](https://scapy.net/) - Packet manipulation library
 - [Flask](https://flask.palletsprojects.com/) - Web framework
 - [Chart.js](https://www.chartjs.org/) - Data visualization
-```

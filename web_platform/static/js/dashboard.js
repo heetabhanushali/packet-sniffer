@@ -14,6 +14,10 @@ const MAX_TRAFFIC_POINTS = 30;
 // =============================================================================
 
 function checkLegalConsent() {
+    if(!IS_LIVE_MODE){
+        showDashboard();
+        return;
+    }
     const consent = localStorage.getItem('legal_consent_accepted');
     const consentTime = localStorage.getItem('legal_consent_time');
     
